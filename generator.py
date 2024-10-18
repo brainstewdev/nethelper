@@ -2,6 +2,7 @@ import random
 from enum import Enum
 from anytree import Node, RenderTree
 import math
+import argparse
 
 class Difficulty(Enum):
     FACILE = 1
@@ -33,38 +34,33 @@ def numeroDiramazioni():
 
     return diramazioni
 idbranch = ["A", "B", "C", "D", "E", "F"]
-def generaPiani(numPiani,  diff=Difficulty.NORMALE, numDiramazioni=0, root=None, idpiano=1):
+def generaPiani(numPiani=1,  diff=Difficulty.NORMALE, numDiramazioni=0, root=None, idpiano=1):
     Radice = root
     padre = Radice
     i = idpiano
     if(root == None):
-        print("creo lobby")
         # caso base, crea radice
         # crea i due piani lobby
         Radice = Node(generaPiano(1, diff))
         padre = Node(generaPiano(2, diff), Radice)
         numPiani-=2
-        i=3
+        i=2
     # ora genero i piani partendo da padre
     if(numPiani > 0):
         i+=1
-        # print("genero piano")
-        # print("piani mancanti: ", numPiani)
-
         # se ho ancora piani da generare:
         # genero un piano chiamando ricorsivamente la funzione.
         # in caso di diramazione suddivido il numero di piani in modo che siano pari o quasi e stesso
-        if((numDiramazioni > 0) and (random.randint(1,10) > 6)):
-            print("aggiungo diramazione")
+        if (numDiramazioni > 0) and ((random.randint(1,10)) < (float(numDiramazioni)/float(numPiani))*10):
             # diramo albero utilizzando come nodo padre "padre"
-            padresx = Node(generaPiano(i, diff, idBranch=idbranch[0]), Radice)
-            padredx = Node(generaPiano(i, diff, idBranch=idbranch[1]), Radice)
+            padresx = Node(generaPiano(i, diff, idBranch=idbranch[0]), padre)
+            padredx = Node(generaPiano(i, diff, idBranch=idbranch[1]), padre)
 
             numPianiSx = math.ceil((numPiani-2)/2)
             generaPiani(numPianiSx, diff, numDiramazioni-1, padresx, idpiano=i)
             generaPiani(numPiani-numPianiSx, diff, numDiramazioni-1, padredx, idpiano=i)
         else:
-            padrenew = Node(generaPiano(i, diff), Radice)
+            padrenew = Node(generaPiano(i, diff), padre)
 
             generaPiani(numPiani-1, diff,  root=padrenew, idpiano=i)
     return Radice
@@ -99,26 +95,29 @@ def generaPiano(piano, diff=Difficulty.NORMALE, idBranch=""):
         "Liche",
         ]
     normale = [
-        "_PARTE DA 3_"
-        "_PARTE DA 3_"
-            "Hellhound x2",
-            "Hellhound, Killer",
-            "Skunk x2",
-            "Sabertooth",
-            "Scorpion",
-            "Hellhound",
-            "Password DV8",
-            "File DV8",
-            "Control Node DV8",
-            "Password DV8",
-            "Asp",
-            "Killer",
-            "Liche",
-            "Asp",
-            "Raven x3",
-            "Liche, Raven"
-        ]
+        "_PARTE DA 3_",
+        "_PARTE DA 3_",
+        "Hellhound x2",
+        "Hellhound, Killer",
+        "Skunk x2",
+        "Sabertooth",
+        "Scorpion",
+        "Hellhound",
+        "Password DV8",
+        "File DV8",
+        "Control Node DV8",
+        "Password DV8",
+        "Asp",
+        "Killer",
+        "Liche",
+        "Asp",
+        "Raven x3",
+        "Liche, Raven"
+    ]
+
     discreti = [
+        "_parte da 3_",
+        "_parte da 3_",
     "Kraken",
     "Hellhound, Scorpion",
     "Hellhound, Killer",
@@ -137,6 +136,8 @@ def generaPiano(piano, diff=Difficulty.NORMALE, idBranch=""):
     "Giant"
     ]
     avanzati = [
+              "_parte da 3_",
+        "_parte da 3_",
     "Hellhound x3",
     "Asp x2",
     "Hellhound, Liche",
@@ -161,7 +162,7 @@ def generaPiano(piano, diff=Difficulty.NORMALE, idBranch=""):
         incontroPiano= lobby[random.randint(1,6)-1]
     else:
         # lancio 3d6
-        lancio = roll3D6()-3
+        lancio = roll3D6()-1
         match diff:
             case Difficulty.FACILE:
                 incontroPiano=  basici[lancio]
@@ -174,6 +175,13 @@ def generaPiano(piano, diff=Difficulty.NORMALE, idBranch=""):
     return str(piano)+idBranch+ " " + incontroPiano
 
 if __name__ =="__main__":
-    root = generaPiani(7, numDiramazioni=2)
+    # prendo gli argomenti da linea di comando
+    parser = argparse.ArgumentParser("nethelper")
+    parser.add_argument("piani", help="numero naturale che rappresenta quanti piani generare", type=int)
+    parser.add_argument("diramazioni", help="numero naturale che rappresenta quante diramazioni massime inserire", type=int)
+    # parsing degli argomenti
+    args = parser.parse_args()
+
+    root = generaPiani(args.piani, numDiramazioni=args.diramazioni)
     for pre, fill, node in RenderTree(root):
         print("%s%s" % (pre, node.name))
