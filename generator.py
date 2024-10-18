@@ -34,7 +34,7 @@ def numeroDiramazioni():
 
     return diramazioni
 idbranch = ["A", "B", "C", "D", "E", "F"]
-def generaPiani(numPiani=1,  diff=Difficulty.NORMALE, numDiramazioni=0, root=None, idpiano=1):
+def generaPiani(numPiani=1,  diff=Difficulty.NORMALE, numDiramazioni=0, root=None, idpiano=1, branchroot=""):
     Radice = root
     padre = Radice
     i = idpiano
@@ -57,12 +57,12 @@ def generaPiani(numPiani=1,  diff=Difficulty.NORMALE, numDiramazioni=0, root=Non
             padredx = Node(generaPiano(i, diff, idBranch=idbranch[1]), padre)
 
             numPianiSx = math.ceil((numPiani-2)/2)
-            generaPiani(numPianiSx, diff, numDiramazioni-1, padresx, idpiano=i)
-            generaPiani(numPiani-numPianiSx, diff, numDiramazioni-1, padredx, idpiano=i)
+            generaPiani(numPianiSx, diff, numDiramazioni-1, padresx, idpiano=i, branchroot=idbranch[0])
+            generaPiani(numPiani-numPianiSx, diff, numDiramazioni-1, padredx, idpiano=i, branchroot=idbranch[1])
         else:
-            padrenew = Node(generaPiano(i, diff), padre)
+            padrenew = Node(generaPiano(i, diff, idBranch=branchroot), padre )
 
-            generaPiani(numPiani-1, diff,  root=padrenew, idpiano=i)
+            generaPiani(numPiani-1, diff,  root=padrenew, idpiano=i, branchroot=branchroot)
     return Radice
 
 def generaPiano(piano, diff=Difficulty.NORMALE, idBranch=""):
